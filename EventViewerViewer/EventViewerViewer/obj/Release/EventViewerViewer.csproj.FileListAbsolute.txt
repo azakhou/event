@@ -1,0 +1,14 @@
+P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\bin\Release\EventViewerViewer.exe.manifest
+P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\bin\Release\EventViewerViewer.application
+P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\bin\Release\EventViewerViewer.exe
+P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\bin\Release\EventViewerViewer.pdb
+P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\obj\Release\EventViewerViewer.Fillter.resources
+P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\obj\Release\EventViewerViewer.Form1.resources
+P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\obj\Release\EventViewerViewer.Form2.resources
+P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\obj\Release\EventViewerViewer.Properties.Resources.resources
+P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\obj\Release\EventViewerViewer.csproj.GenerateResource.Cache
+P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\obj\Release\EventViewerViewer.exe.manifest
+P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\obj\Release\EventViewerViewer.application
+P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\obj\Release\EventViewerViewer.exe
+P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\obj\Release\EventViewerViewer.pdb
+P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\obj\Release\EventViewerViewer.csprojResolveAssemblyReference.cache
