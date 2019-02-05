@@ -42,24 +42,24 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="EventViewerViewer.exe" size="44456">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="EventViewerViewer.exe" size="52648">
       <assemblyIdentity name="EventViewerViewer" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>01oDlkxvCjwHkvb6vCIE4kzN42PcaZ6eLhZVzgwEOIU=</dsig:DigestValue>
+        <dsig:DigestValue>5SohJQhfUcdobuuBTW0/XveOCldz3+E6uQqkEQXPsLA=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
-  <file name="EventViewerViewer.exe.config" size="161">
+  <file name="EventViewerViewer.exe.config" size="163">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>+K0Xw31ERSGzkFzL116my249J2OxbrVrLhqkJ0Fz5hQ=</dsig:DigestValue>
+      <dsig:DigestValue>TA9XQUeHjNhMMAziA2+Wg4S4gJhXatl/1WHOCWOuclQ=</dsig:DigestValue>
     </hash>
   </file>
   <file name="XMLFile1.xml" size="118" writeableType="applicationData">

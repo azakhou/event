@@ -9,6 +9,8 @@ using System.Diagnostics;
 using System.Xml;
 using System.IO;
 using System.Reflection;
+using System.Linq;
+
 
 
 namespace EventViewerViewer
@@ -32,6 +34,7 @@ namespace EventViewerViewer
         public string Eventtext { get; set; }
         public Fillter Fil = null;
         public DataGridView GridIn { get; set; }
+        public int Level_Col = 0;
 
 
         public static readonly string FolderPath = "./Fillter";
@@ -58,8 +61,8 @@ namespace EventViewerViewer
             this.comboBox1.SelectedIndex = 0;
             //コンボボックス2のリストと初期値
             var Levellist = new string[] { "ALL", "Information", "Error", "Warning", "FailureAudit", "SuccessAudit" };
-            this.comboBox2.Items.AddRange(Levellist);
-            this.comboBox2.SelectedIndex = 0;
+            this.CB_EventLevel.Items.AddRange(Levellist);
+            this.CB_EventLevel.SelectedIndex = 0;
             ReadFList();
         }
         #endregion
@@ -79,7 +82,7 @@ namespace EventViewerViewer
             EventlogAll();
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void Btn_Fill_Click(object sender, EventArgs e)
         {
             if(Fil == null)
             {
@@ -94,32 +97,7 @@ namespace EventViewerViewer
         }
         private void XMLBtn_Click(object sender, EventArgs e)
         {
-            //XMLファイルの場所指定------------------------------------------------------------------------------------------
-            XmlDocument xmlDoc = new XmlDocument();
-            using (FileStream stream = new FileStream(string.Format(documentPath(), CB_FName.Text), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            {
-
-
-                XmlDocument doc = new XmlDocument();
-
-                //reader.Schemas.Add(null, schemaPath);
-                XmlValidatingReader reader = new XmlValidatingReader(new XmlTextReader(stream));
-                reader.ValidationType = ValidationType.Schema;
-                doc.Load(reader);
-                var WeventID = checkcol(doc, "EventID");
-                var WLevel = checkcol(doc, "Level");
-                var WSource = checkcol(doc, "Source");
-                var WCategory = checkcol(doc, "Category");
-                var WUserName = checkcol(doc, "UserName");
-                var WMachineName = checkcol(doc, "MachineName");
-
-                // stream.Close();
-                List<string> list = new List<string>() { WeventID, WLevel, WSource, WCategory, WUserName, WMachineName };
-                OutF(list);
-
-                //----------------------------------------------------------------------------------------------------------------
-
-            }
+            EventlogAll(((Button)sender).Name);
         }
 
         private void outbtn_Click(object sender, EventArgs e)
@@ -129,6 +107,10 @@ namespace EventViewerViewer
             {
                 CreateXML();
                 string Cvalues = Convert.ToString(dgView.CurrentCell.Value); //セルの値
+                if (Cvalues == "Information")
+                {
+                    Cvalues += ", 0";
+                }
                 var ColName = Convert.ToString(dgView.Columns[dgView.CurrentCell.ColumnIndex].HeaderCell.Value);//列名取得
 
                 XmlDocument xmlDoc = new XmlDocument();
@@ -188,6 +170,8 @@ namespace EventViewerViewer
             }
             //リスト表示
             EventlogAll();
+            System.Diagnostics.EventLog evLog = new System.Diagnostics.EventLog(comboBox1.Text);
+
         }
 
         private void btn_add_Click(object sender, EventArgs e)
@@ -235,7 +219,7 @@ namespace EventViewerViewer
         }
         #endregion
         #region watchView
-        public void EventlogAll()
+        public void EventlogAll(string BtnClick = "")
         {
             CreateXML();
             dgView.Columns.Clear();
@@ -249,7 +233,8 @@ namespace EventViewerViewer
             //DateRowに１つづセットしていく
             //DatasetPatern(evLog);
             //Listにセットしていく
-           ListDatePatern(evLog);
+            //ListDatePatern(evLog);
+            LinqPatern(evLog, BtnClick);
             // ForeachPatern(evLog);
 
             stopwatch.Stop();
@@ -306,164 +291,7 @@ namespace EventViewerViewer
             //}
         }
         //list{ WeventID, WLevel, WSource, WCategory, WUserName, WMachineName }
-        private void OutF(List<string> list)
-        {
-            dgView.Columns.Clear();
-            try
-            {
-                System.Diagnostics.EventLog evLog = new System.Diagnostics.EventLog(comboBox1.Text);
-                int iCnt = evLog.Entries.Count;
-                Lbl_Rowcount.Text = "0";
-                DataSet ds = new DataSet();
-                DataRow dr;
-                DataTable dt = LogTabel(ds);
 
-                bool Viewchecker = true;
-                //objectのDateTime値に変換する文字列
-                var dt1 = dateTimePicker1.Value;
-
-                //ビューの中身
-                for (int i = iCnt - 1; i >= 0; i--)
-                {
-                    Viewchecker = true;
-                    ///
-                    if (evLog.Entries[i].TimeWritten <= dt1.Date)
-                    {
-                        break;
-                    }
-                    ///
-                    if (list[0] == Convert.ToString(evLog.Entries[i].EventID))
-                    {
-                        continue;
-                    }
-                    else if (0 <= list[0].IndexOf(","))
-                    {
-                        for (int j = 0; j <= list[0].Split(',').LongLength - 1; j++)
-                        {
-                            if (list[0].Split(',')[j] == Convert.ToString(evLog.Entries[i].EventID))
-                            {
-                                Viewchecker = false;
-                                break;
-                            }
-                        }
-                        if (Viewchecker == false) { continue; }
-                    }
-                    ///Informationと0とが混在しているため
-
-                    if (Convert.ToString(evLog.Entries[i].EntryType) == "0" && list[1] == "Information")
-                    {
-                        continue;
-                    }
-                    if (list[1] == Convert.ToString(evLog.Entries[i].EntryType))
-                    {
-                        continue;
-                    }
-                    else if (0 <= list[1].IndexOf(","))
-                    {
-                        for (int j = 0; j <= list[1].Split(',').LongLength - 1; j++)
-                        {
-                            if (list[1].Split(',')[j] == Convert.ToString(evLog.Entries[i].EntryType))
-                            {
-                                Viewchecker = false;
-                                break;
-                            }
-                            else if (list[1].Split(',')[j] == "Information" && Convert.ToString(evLog.Entries[i].EntryType) == "0")
-                            {
-                                Viewchecker = false;
-                                break;
-                            }
-
-                        }
-                        if (Viewchecker == false) { continue; }
-                    }
-
-                    ///
-                    if (list[2] == Convert.ToString(evLog.Entries[i].Source))
-                    {
-                        continue;
-                    }
-                    else if (0 <= list[2].IndexOf(","))
-                    {
-                        for (int j = 0; j <= list[2].Split(',').LongLength - 1; j++)
-                        {
-                            if (list[2].Split(',')[j] == Convert.ToString(evLog.Entries[i].Source))
-                            {
-                                Viewchecker = false;
-                                break;
-                            }
-                        }
-                        if (Viewchecker == false) { continue; }
-                    }
-                    ///
-                    if (list[3] == Convert.ToString(evLog.Entries[i].Category))
-                    {
-                        continue;
-                    }
-                    else if (0 <= list[3].IndexOf(","))
-                    {
-                        for (int j = 0; j <= list[3].Split(',').LongLength - 1; j++)
-                        {
-                            if (list[3].Split(',')[j] == Convert.ToString(evLog.Entries[i].Category))
-                            {
-                                Viewchecker = false;
-                                break;
-                            }
-                        }
-                        if (Viewchecker == false) { continue; }
-                    }
-                    ///
-                    if (list[4] == Convert.ToString(evLog.Entries[i].UserName))
-                    {
-                        continue;
-                    }
-                    else if (0 <= list[4].IndexOf(","))
-                    {
-                        for (int j = 0; j <= list[4].Split(',').LongLength - 1; j++)
-                        {
-                            if (list[4].Split(',')[j] == Convert.ToString(evLog.Entries[i].UserName))
-                            {
-                                Viewchecker = false;
-                                break;
-                            }
-                        }
-                        if (Viewchecker == false) { continue; }
-                    }
-                    ///
-                    if (list[5] == Convert.ToString(evLog.Entries[i].MachineName))
-                    {
-                        continue;
-                    }
-                    else if (0 <= list[5].IndexOf(","))
-                    {
-                        for (int j = 0; j <= list[5].Split(',').LongLength - 1; j++)
-                        {
-                            if (list[5].Split(',')[j] == Convert.ToString(evLog.Entries[i].MachineName))
-                            {
-                                Viewchecker = false;
-                                break;
-                            }
-                        }
-                        if (Viewchecker == false) { continue; }
-                    }
-
-                    if (Viewchecker == true)
-                    {
-                        dr = dt.NewRow();
-                        GridValues(dr, evLog.Entries, i);
-                        dt.Rows.Add(dr);
-                    }
-
-                }
-                dgView.DataSource = ds;
-                dgView.DataMember = "Computer";
-
-                Gridview();
-            }
-            catch
-            {
-                return;
-            }
-        }
         #endregion
         #region Viewchecker/Values
         private void GridValues(DataRow dr, EventLogEntryCollection evLog, int i)
@@ -492,13 +320,13 @@ namespace EventViewerViewer
                 dr["UserName"] = evLog[i].UserName;
             }
         }
-        private bool ALLEvent(EventLog evLog, int i)
+        private bool ALLEvent(string Level)
         {
-            if (this.comboBox2.Text == "ALL")
+            if (this.CB_EventLevel.Text == "ALL")
             {
                 return true;
             }
-            else if (this.comboBox2.Text == Convert.ToString(evLog.Entries[i].EntryType))
+            else if (this.CB_EventLevel.Text == Level)
             {
                 return true;
             }
@@ -707,22 +535,23 @@ namespace EventViewerViewer
         private string checkcol(XmlDocument doc, string colName)
         {
             string strobj = "";
-            if (doc.GetElementsByTagName(colName).Count == 1)
+            var Del_info = doc.GetElementsByTagName(colName);
+            if (Del_info.Count == 1)
             {
-                strobj = doc.GetElementsByTagName(colName)[0].InnerText;
+                strobj = Del_info[Level_Col].InnerText;
             }
-            else if ((doc.GetElementsByTagName(colName).Count > 1))
+            else if (Del_info.Count > 1)
             {
-                for (int i = 0; i <= doc.GetElementsByTagName(colName).Count - 1; i++)
+                for (int i = 0; i <= Del_info.Count - 1; i++)
                 {
 
-                    if (i == doc.GetElementsByTagName(colName).Count - 1)
+                    if (i == Del_info.Count - 1)
                     {
-                        strobj += doc.GetElementsByTagName(colName)[i].InnerText;
+                        strobj += Del_info[i].InnerText;
                     }
                     else
                     {
-                        strobj += doc.GetElementsByTagName(colName)[i].InnerText + ",";
+                        strobj += Del_info[i].InnerText + ",";
                     }
                 }
             }
@@ -765,8 +594,6 @@ namespace EventViewerViewer
             {
 
             }
-          
-
         }
         private DataTable LogTabel(DataSet ds)
         {
@@ -807,223 +634,361 @@ namespace EventViewerViewer
             }
         }
         #endregion
-        private  void DatasetPatern(EventLog evLog)
+
+        private List<ViewDate> CreateData(dynamic sources)
         {
             var ALLName = "";
             var CateName = "";
-            int iCnt = evLog.Entries.Count;
-            //DateTime値に変換する文字列
-            var dt1 = dateTimePicker1.Value;
-            DataSet ds = new DataSet();
-            DataTable dt = LogTabel(ds);
-            DataRow dr;
-            for (int i = iCnt - 1; i >= 0; i--)
+            List<ViewDate> dttest = new List<ViewDate>();
+            foreach (var objlog in sources)
             {
-                if (ALLEvent(evLog, i) == false) { continue; }
-                if (evLog.Entries[i].TimeWritten <= dt1.Date)
+                if (ALLEvent(objlog.Level) == false) { continue; }
+                ViewDate tm = new ViewDate();
+                if (objlog.Level == "0") { tm.Level = "Information"; } else { tm.Level = objlog.Level; }
+                tm.TimeWritten = objlog.TimeWritten;
+                tm.Source = objlog.Source;
+                tm.EventID = objlog.EventID;
+                tm.Category = objlog.Category;
+                tm.Message = objlog.Message;
+                tm.MachineName = objlog.MachineName;
+                if (objlog.UserName == "NT AUTHORITY\\SYSTEM")
                 {
-                    break;
+                    tm.UserName = "SYSTEM";
+                }
+                else if (objlog.UserName == null)
+                {
+                    tm.UserName = "N/A";
                 }
                 else
                 {
-                    dr = dt.NewRow();
-                    GridValues(dr, evLog.Entries, i);
-                    dt.Rows.Add(dr);
-                    //sourcename取得
-                    if (0 > ALLName.IndexOf(evLog.Entries[i].Source))
-                    {
-                        ALLName += evLog.Entries[i].Source + ",";
-                    }
-                    //カテゴリー取得
-                    if (0 > CateName.IndexOf(evLog.Entries[i].Category))
-                    {
-                        CateName += evLog.Entries[i].Category + ",";
-                    }
+                    tm.UserName = objlog.UserName;
+                }
+                dttest.Add(tm);
+
+                //sourcename取得
+                if (0 > ALLName.IndexOf(objlog.Source))
+                {
+                    ALLName += objlog.Source + ",";
+                }
+                //カテゴリー取得
+                if (0 > CateName.IndexOf(objlog.Category))
+                {
+                    CateName += objlog.Category + ",";
                 }
             }
-            dgView.DataSource = ds;
-            //dgView.DataSource = dttest;
-            dgView.DataMember = "Computer";
             ALLS = ALLName;
             ALLC = CateName;
-            Gridview();
-
-
+            return dttest;
         }
-        private void ListDatePatern(EventLog evLog)
+        private void LinqPatern(EventLog evLog, string BtnClick = "")
         {
-
-            var ALLName = "";
-            var CateName = "";
-            int iCnt = evLog.Entries.Count;
             //DateTime値に変換する文字列
             var dt1 = dateTimePicker1.Value;
             List<ViewDate> dttest = new List<ViewDate>();
-
-            for (int i = iCnt - 1; i >= 0; i--)
+            var Levellist = new string[] { };
+            //Linq逆順にする
+            var sources = (from System.Diagnostics.EventLogEntry es in evLog.Entries
+                           where es.TimeWritten >= dt1.Date 
+                           orderby es.TimeGenerated descending
+                           select  new{ Level = es.EntryType.ToString()
+                                       , TimeWritten = es.TimeWritten
+                                       , Source = es.Source
+                                       , EventID = es.EventID
+                                       , Category = es.Category
+                                       , Message = es.Message
+                                       , MachineName = es.MachineName
+                                       , UserName = es.UserName
+                                      }).ToList();
+            if (BtnClick == "XMLBtn")
             {
-                if (ALLEvent(evLog, i) == false) { continue; }
-                if (evLog.Entries[i].TimeWritten <= dt1.Date)
+                XmlDocument xmlDoc = new XmlDocument();
+                using (FileStream stream = new FileStream(string.Format(documentPath(), CB_FName.Text), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
-                    break;
-                }
-                else
-                {
-                    ViewDate tm = new ViewDate();
-                    var objlog = evLog.Entries[i];
-                    if (objlog.EntryType == 0) { tm.Level = "Information"; } else { tm.Level = evLog.Entries[i].EntryType.ToString(); }
-                    tm.TimeWritten = objlog.TimeWritten;
-                    tm.Source = objlog.Source;
-                    tm.EventID = objlog.EventID;
-                    tm.Category = objlog.Category;
-                    tm.Message = objlog.Message;
-                    tm.MachineName = objlog.MachineName;
-                    if (objlog.UserName == "NT AUTHORITY\\SYSTEM")
-                    {
-                        tm.UserName = "SYSTEM";
-                    }
-                    else if (objlog.UserName == null)
-                    {
-                        tm.UserName = "N/A";
-                    }
-                    else
-                    {
-                        tm.UserName = objlog.UserName;
-                    }
-                    dttest.Add(tm);
+                    XmlDocument doc = new XmlDocument();
+                    XmlValidatingReader reader = new XmlValidatingReader(new XmlTextReader(stream));
+                    reader.ValidationType = ValidationType.Schema;
+                    doc.Load(reader);
 
-                    //sourcename取得
-                    if (0 > ALLName.IndexOf(objlog.Source))
-                    {
-                        ALLName += objlog.Source + ",";
-                    }
-                    //カテゴリー取得
-                    if (0 > CateName.IndexOf(objlog.Category))
-                    {
-                        CateName += objlog.Category + ",";
-                    }
+                    var DelXML = sources.Where(x => !checkcol(doc, "EventID").Contains(x.EventID.ToString()));
+                    DelXML = DelXML.Where(x => !checkcol(doc, "Level").Contains(x.Level));
+                    DelXML = DelXML.Where(x => !checkcol(doc, "Source").Contains(x.Source));
+                    DelXML = DelXML.Where(x => !checkcol(doc, "Category").Contains(x.Category));
+                    DelXML = DelXML.Where(x => !checkcol(doc, "TimeWritten").Contains(x.TimeWritten.ToString()));
+
+                    dgView.DataSource = CreateData(DelXML);
                 }
             }
-            dgView.DataSource = dttest;
-            ALLS = ALLName;
-            ALLC = CateName;
+            else
+            {
+                dgView.DataSource = CreateData(sources);
+            }
+
             Gridview();
         }
-        private void ForeachPatern(EventLog evLog)
-        {
-            var ALLName = "";
-            var CateName = "";
-            int iCnt = evLog.Entries.Count;
-            //DateTime値に変換する文字列
-            var dt1 = dateTimePicker1.Value;
-            List<ViewDate> dttest = new List<ViewDate>();
-            //foreach (EventLogEntry LogRow in evLog.Entries)
-            //{
-                //if (ALLEvent(evLog, i) == false) { continue; }
-                //if (LogRow.TimeWritten <= dt1.Date)
-                //{
-                //    continue;
-                //}
-                //else
-                //{
-                    //test
-                    //string[] item = new string[2];
-                    //if (LogRow.EntryType == 0) { item[0] = "Information"; } else { item[0] = LogRow.EntryType.ToString(); }
-
-                    ////item[1] = evLog.Entries[i].TimeWritten.ToString();
-                    ////item[2] = evLog.Entries[i].Source;
-                    ////item[3] = evLog.Entries[i].EventID.ToString();
-                    ////item[4] = evLog.Entries[i].Category;
-                    ////item[5] = evLog.Entries[i].Message;
-                    ////item[6] = evLog.Entries[i].MachineName;
-                    //if (LogRow.UserName == "NT AUTHORITY\\SYSTEM")
-                    //{
-                    //    item[1] = "SYSTEM";
-                    //}
-                    //else if (LogRow.UserName == null)
-                    //{
-                    //    item[1] = "N/A";
-                    //}
-                    //else
-                    //{
-                    //    item[1] = LogRow.UserName;
-                    //}
-                    //dttest.Add(new test(item[0], LogRow.TimeWritten, LogRow.Source, LogRow.EventID, LogRow.Category, LogRow.Message, LogRow.MachineName, item[1]));
-
-                    //test
-
-                    //sourcename取得
-                    //if (0 > ALLName.IndexOf(LogRow.Source))
-                    //{
-                    //    ALLName += LogRow.Source + ",";
-                    //}
-                    ////カテゴリー取得
-                    //if (0 > CateName.IndexOf(LogRow.Category))
-                    //{
-                    //    CateName += LogRow.Category + ",";
-                    //}
-                //}
-            //}
-            dgView.DataSource = evLog.Entries;
-            ALLS = ALLName;
-            ALLC = CateName;
-            //Gridview();
-        }
-        //private void  test()
-        //{
-        //    this.dgView.AutoGenerateColumns = false;
-        //    var col0 = new DataGridViewColumn();
-        //    var col1 = new DataGridViewColumn();
-        //    var col2 = new DataGridViewColumn();
-        //    var col3 = new DataGridViewColumn();
-        //    var col4 = new DataGridViewColumn();
-        //    var col5 = new DataGridViewColumn();
-        //    var col6 = new DataGridViewColumn();
-        //    var col7 = new DataGridViewColumn();
-        //    col0.Name = "level";
-        //    col0.HeaderText = "Level";
-        //    col0.DataPropertyName = "Level";
-        //    col1.Name = "timeWritten";
-        //    col1.HeaderText = "TimeWritten";
-        //    col1.DataPropertyName = "TimeWritten";
-
-        //    col2.Name = "source";
-        //    col2.HeaderText = "Source";
-        //    col2.DataPropertyName = "Source";
-        //    col3.Name = "eventID";
-        //    col3.HeaderText = "EventID";
-        //    col3.DataPropertyName = "EventID";
-
-        //    col4.Name = "category";
-        //    col4.HeaderText = "Category";
-        //    col4.DataPropertyName = "Category";
-        //    col5.Name = "message";
-        //    col5.HeaderText = "Message";
-        //    col5.DataPropertyName = "Message";
-
-        //    col6.Name = "machineName";
-        //    col6.HeaderText = "MachineName";
-        //    col6.DataPropertyName = "MachineName";
-        //    col7.Name = "userName";
-        //    col7.HeaderText = "UserName";
-        //    col7.DataPropertyName = "UserName";
-        //    dgView.Columns.Add(col0);
-        //    dgView.Columns.Add(col1);
-        //    dgView.Columns.Add(col2);
-        //    dgView.Columns.Add(col3);
-        //    dgView.Columns.Add(col4);
-        //    dgView.Columns.Add(col5);
-        //    dgView.Columns.Add(col6);
-        //    dgView.Columns.Add(col7);
-
-        //}
-
-
     }
+    #region old
+    //private void OutF(List<string> list)
+    //{
+    //    dgView.Columns.Clear();
+    //    try
+    //    {
+    //        System.Diagnostics.EventLog evLog = new System.Diagnostics.EventLog(comboBox1.Text);
+    //        int iCnt = evLog.Entries.Count;
+    //        Lbl_Rowcount.Text = "0";
+    //        DataSet ds = new DataSet();
+    //        DataRow dr;
+    //        DataTable dt = LogTabel(ds);
+
+    //        bool Viewchecker = true;
+    //        //objectのDateTime値に変換する文字列
+    //        var dt1 = dateTimePicker1.Value;
+
+    //        //ビューの中身
+    //        for (int i = iCnt - 1; i >= 0; i--)
+    //        {
+    //            Viewchecker = true;
+    //            ///
+    //            if (evLog.Entries[i].TimeWritten <= dt1.Date)
+    //            {
+    //                break;
+    //            }
+    //            ///
+    //            if (list[0] == Convert.ToString(evLog.Entries[i].EventID))
+    //            {
+    //                continue;
+    //            }
+    //            else if (0 <= list[0].IndexOf(","))
+    //            {
+    //                for (int j = 0; j <= list[0].Split(',').LongLength - 1; j++)
+    //                {
+    //                    if (list[0].Split(',')[j] == Convert.ToString(evLog.Entries[i].EventID))
+    //                    {
+    //                        Viewchecker = false;
+    //                        break;
+    //                    }
+    //                }
+    //                if (Viewchecker == false) { continue; }
+    //            }
+    //            ///Informationと0とが混在しているため
+
+    //            if (Convert.ToString(evLog.Entries[i].EntryType) == "0" && list[1] == "Information")
+    //            {
+    //                continue;
+    //            }
+    //            if (list[1] == Convert.ToString(evLog.Entries[i].EntryType))
+    //            {
+    //                continue;
+    //            }
+    //            else if (0 <= list[1].IndexOf(","))
+    //            {
+    //                for (int j = 0; j <= list[1].Split(',').LongLength - 1; j++)
+    //                {
+    //                    if (list[1].Split(',')[j] == Convert.ToString(evLog.Entries[i].EntryType))
+    //                    {
+    //                        Viewchecker = false;
+    //                        break;
+    //                    }
+    //                    else if (list[1].Split(',')[j] == "Information" && Convert.ToString(evLog.Entries[i].EntryType) == "0")
+    //                    {
+    //                        Viewchecker = false;
+    //                        break;
+    //                    }
+
+    //                }
+    //                if (Viewchecker == false) { continue; }
+    //            }
+
+    //            ///
+    //            if (list[2] == Convert.ToString(evLog.Entries[i].Source))
+    //            {
+    //                continue;
+    //            }
+    //            else if (0 <= list[2].IndexOf(","))
+    //            {
+    //                for (int j = 0; j <= list[2].Split(',').LongLength - 1; j++)
+    //                {
+    //                    if (list[2].Split(',')[j] == Convert.ToString(evLog.Entries[i].Source))
+    //                    {
+    //                        Viewchecker = false;
+    //                        break;
+    //                    }
+    //                }
+    //                if (Viewchecker == false) { continue; }
+    //            }
+    //            ///
+    //            if (list[3] == Convert.ToString(evLog.Entries[i].Category))
+    //            {
+    //                continue;
+    //            }
+    //            else if (0 <= list[3].IndexOf(","))
+    //            {
+    //                for (int j = 0; j <= list[3].Split(',').LongLength - 1; j++)
+    //                {
+    //                    if (list[3].Split(',')[j] == Convert.ToString(evLog.Entries[i].Category))
+    //                    {
+    //                        Viewchecker = false;
+    //                        break;
+    //                    }
+    //                }
+    //                if (Viewchecker == false) { continue; }
+    //            }
+    //            ///
+    //            if (list[4] == Convert.ToString(evLog.Entries[i].UserName))
+    //            {
+    //                continue;
+    //            }
+    //            else if (0 <= list[4].IndexOf(","))
+    //            {
+    //                for (int j = 0; j <= list[4].Split(',').LongLength - 1; j++)
+    //                {
+    //                    if (list[4].Split(',')[j] == Convert.ToString(evLog.Entries[i].UserName))
+    //                    {
+    //                        Viewchecker = false;
+    //                        break;
+    //                    }
+    //                }
+    //                if (Viewchecker == false) { continue; }
+    //            }
+    //            ///
+    //            if (list[5] == Convert.ToString(evLog.Entries[i].MachineName))
+    //            {
+    //                continue;
+    //            }
+    //            else if (0 <= list[5].IndexOf(","))
+    //            {
+    //                for (int j = 0; j <= list[5].Split(',').LongLength - 1; j++)
+    //                {
+    //                    if (list[5].Split(',')[j] == Convert.ToString(evLog.Entries[i].MachineName))
+    //                    {
+    //                        Viewchecker = false;
+    //                        break;
+    //                    }
+    //                }
+    //                if (Viewchecker == false) { continue; }
+    //            }
+
+    //            if (Viewchecker == true)
+    //            {
+    //                dr = dt.NewRow();
+    //                GridValues(dr, evLog.Entries, i);
+    //                dt.Rows.Add(dr);
+    //            }
+
+    //        }
+    //        dgView.DataSource = ds;
+    //        dgView.DataMember = "Computer";
+
+    //        Gridview();
+    //    }
+    //    catch
+    //    {
+    //        return;
+    //    }
+    //}
+
+    //private  void DatasetPatern(EventLog evLog)
+    //{
+    //    var ALLName = "";
+    //    var CateName = "";
+    //    int iCnt = evLog.Entries.Count;
+    //    //DateTime値に変換する文字列
+    //    var dt1 = dateTimePicker1.Value;
+    //    DataSet ds = new DataSet();
+    //    DataTable dt = LogTabel(ds);
+    //    DataRow dr;
+    //    for (int i = iCnt - 1; i >= 0; i--)
+    //    {
+    //        //if (ALLEvent(evLog, i) == false) { continue; }
+    //        if (evLog.Entries[i].TimeWritten <= dt1.Date)
+    //        {
+    //            break;
+    //        }
+    //        else
+    //        {
+    //            dr = dt.NewRow();
+    //            GridValues(dr, evLog.Entries, i);
+    //            dt.Rows.Add(dr);
+    //            //sourcename取得
+    //            if (0 > ALLName.IndexOf(evLog.Entries[i].Source))
+    //            {
+    //                ALLName += evLog.Entries[i].Source + ",";
+    //            }
+    //            //カテゴリー取得
+    //            if (0 > CateName.IndexOf(evLog.Entries[i].Category))
+    //            {
+    //                CateName += evLog.Entries[i].Category + ",";
+    //            }
+    //        }
+    //    }
+    //    dgView.DataSource = ds;
+    //    //dgView.DataSource = dttest;
+    //    dgView.DataMember = "Computer";
+    //    ALLS = ALLName;
+    //    ALLC = CateName;
+    //    Gridview();
 
 
+    //}
+    //private void ListDatePatern(EventLog evLog)
+    //{
 
+    //    var ALLName = "";
+    //    var CateName = "";
+    //    int iCnt = evLog.Entries.Count;
+    //    //DateTime値に変換する文字列
+    //    var dt1 = dateTimePicker1.Value;
+    //    List<ViewDate> dttest = new List<ViewDate>();
 
+    //    for (int i = iCnt - 1; i >= 0; i--)
+    //    {
+    //        //if (ALLEvent(evLog, i) == false) { continue; }
+    //        if (evLog.Entries[i].TimeWritten <= dt1.Date)
+    //        {
+    //            break;
+    //        }
+    //        else
+    //        {
+    //            ViewDate tm = new ViewDate();
+    //            var objlog = evLog.Entries[i];
+    //            if (objlog.EntryType == 0) { tm.Level = "Information"; } else { tm.Level = evLog.Entries[i].EntryType.ToString(); }
+    //            tm.TimeWritten = objlog.TimeWritten;
+    //            tm.Source = objlog.Source;
+    //            tm.EventID = objlog.EventID;
+    //            tm.Category = objlog.Category;
+    //            tm.Message = objlog.Message;
+    //            tm.MachineName = objlog.MachineName;
+    //            if (objlog.UserName == "NT AUTHORITY\\SYSTEM")
+    //            {
+    //                tm.UserName = "SYSTEM";
+    //            }
+    //            else if (objlog.UserName == null)
+    //            {
+    //                tm.UserName = "N/A";
+    //            }
+    //            else
+    //            {
+    //                tm.UserName = objlog.UserName;
+    //            }
+    //            dttest.Add(tm);
+
+    //            //sourcename取得
+    //            if (0 > ALLName.IndexOf(objlog.Source))
+    //            {
+    //                ALLName += objlog.Source + ",";
+    //            }
+    //            //カテゴリー取得
+    //            if (0 > CateName.IndexOf(objlog.Category))
+    //            {
+    //                CateName += objlog.Category + ",";
+    //            }
+    //        }
+    //    }
+    //    dgView.DataSource = dttest;
+    //    ALLS = ALLName;
+    //    ALLC = CateName;
+    //    Gridview();
+    //}
+    #endregion
 }
 public class ViewDate
 {
@@ -1036,8 +1001,6 @@ public class ViewDate
     public string MachineName { get; set; }
     public string UserName { get; set; }
 }
-
-
 
 public class DataGridViewEx : DataGridView
 {

@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             this.btn_play = new System.Windows.Forms.Button();
-            this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.CB_EventLevel = new System.Windows.Forms.ComboBox();
             this.dateTimePicker1 = new System.Windows.Forms.DateTimePicker();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.Filbotton = new System.Windows.Forms.Button();
+            this.Btn_Fill = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.Lbl_Rowcount = new System.Windows.Forms.Label();
             this.XMLBtn = new System.Windows.Forms.Button();
@@ -55,13 +55,13 @@
             this.btn_play.UseVisualStyleBackColor = true;
             this.btn_play.Click += new System.EventHandler(this.btn_play_Click);
             // 
-            // comboBox2
+            // CB_EventLevel
             // 
-            this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(214, 12);
-            this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(135, 20);
-            this.comboBox2.TabIndex = 5;
+            this.CB_EventLevel.FormattingEnabled = true;
+            this.CB_EventLevel.Location = new System.Drawing.Point(214, 12);
+            this.CB_EventLevel.Name = "CB_EventLevel";
+            this.CB_EventLevel.Size = new System.Drawing.Size(135, 20);
+            this.CB_EventLevel.TabIndex = 5;
             // 
             // dateTimePicker1
             // 
@@ -79,15 +79,15 @@
             this.comboBox1.Size = new System.Drawing.Size(196, 20);
             this.comboBox1.TabIndex = 7;
             // 
-            // Filbotton
+            // Btn_Fill
             // 
-            this.Filbotton.Location = new System.Drawing.Point(387, 12);
-            this.Filbotton.Name = "Filbotton";
-            this.Filbotton.Size = new System.Drawing.Size(75, 23);
-            this.Filbotton.TabIndex = 8;
-            this.Filbotton.Text = "フィルター";
-            this.Filbotton.UseVisualStyleBackColor = true;
-            this.Filbotton.Click += new System.EventHandler(this.button2_Click);
+            this.Btn_Fill.Location = new System.Drawing.Point(387, 12);
+            this.Btn_Fill.Name = "Btn_Fill";
+            this.Btn_Fill.Size = new System.Drawing.Size(75, 23);
+            this.Btn_Fill.TabIndex = 8;
+            this.Btn_Fill.Text = "フィルター";
+            this.Btn_Fill.UseVisualStyleBackColor = true;
+            this.Btn_Fill.Click += new System.EventHandler(this.Btn_Fill_Click);
             // 
             // label1
             // 
@@ -169,6 +169,7 @@
             this.dgView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.dgView.Location = new System.Drawing.Point(12, 54);
             this.dgView.Name = "dgView";
+            this.dgView.ReadOnly = true;
             this.dgView.RowTemplate.Height = 21;
             this.dgView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dgView.Size = new System.Drawing.Size(619, 409);
@@ -189,10 +190,10 @@
             this.Controls.Add(this.XMLBtn);
             this.Controls.Add(this.Lbl_Rowcount);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.Filbotton);
+            this.Controls.Add(this.Btn_Fill);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.dateTimePicker1);
-            this.Controls.Add(this.comboBox2);
+            this.Controls.Add(this.CB_EventLevel);
             this.Controls.Add(this.btn_play);
             this.Name = "Form1";
             this.Text = "イベントビューア";
@@ -205,10 +206,10 @@
 
         #endregion
         private System.Windows.Forms.Button btn_play;
-        private System.Windows.Forms.ComboBox comboBox2;
+        private System.Windows.Forms.ComboBox CB_EventLevel;
         private System.Windows.Forms.DateTimePicker dateTimePicker1;
         private System.Windows.Forms.ComboBox comboBox1;
-        private System.Windows.Forms.Button Filbotton;
+        private System.Windows.Forms.Button Btn_Fill;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label Lbl_Rowcount;
         private System.Windows.Forms.Button XMLBtn;

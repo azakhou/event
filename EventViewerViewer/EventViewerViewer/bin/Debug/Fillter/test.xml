@@ -1,5 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Fillter>
-  <EventID>15</EventID>
-  <Category>(0)</Category>
+  <Source>SecurityCenter</Source>
 </Fillter>
