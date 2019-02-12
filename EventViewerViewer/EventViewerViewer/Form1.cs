@@ -10,7 +10,7 @@ using System.Xml;
 using System.IO;
 using System.Reflection;
 using System.Linq;
-
+using System.Xml.Linq;
 
 
 namespace EventViewerViewer
@@ -35,7 +35,7 @@ namespace EventViewerViewer
         public Fillter Fil = null;
         public DataGridView GridIn { get; set; }
         public int Level_Col = 0;
-
+        public string[] Levellist = new string[] { "ALL", "Information", "Error", "Warning", "FailureAudit", "SuccessAudit" };
 
         public static readonly string FolderPath = "./Fillter";
         private string documentPath()
@@ -60,7 +60,7 @@ namespace EventViewerViewer
             }
             this.comboBox1.SelectedIndex = 0;
             //コンボボックス2のリストと初期値
-            var Levellist = new string[] { "ALL", "Information", "Error", "Warning", "FailureAudit", "SuccessAudit" };
+
             this.CB_EventLevel.Items.AddRange(Levellist);
             this.CB_EventLevel.SelectedIndex = 0;
             ReadFList();
@@ -111,37 +111,43 @@ namespace EventViewerViewer
                 {
                     Cvalues += ", 0";
                 }
-                var ColName = Convert.ToString(dgView.Columns[dgView.CurrentCell.ColumnIndex].HeaderCell.Value);//列名取得
+                var ColName = Convert.ToString(dgView.Columns[dgView.CurrentCell.ColumnIndex].HeaderCell.Value);
+                //列名取得
+                //XML.Linq
+                var xDoc = XDocument.Load(documentPath());
+                var elem = new XElement(ColName, Cvalues);
+                xDoc.Elements().First().Add(elem);
+                xDoc.Save(documentPath());
+                //old code
+                // XmlDocument xmlDoc = new XmlDocument();
 
-                XmlDocument xmlDoc = new XmlDocument();
-
-                // XmlDocumentオブジェクトを作成
-                using (FileStream stream = new FileStream(string.Format(documentPath(), CB_FName.Text), FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
-                {
+                //// XmlDocumentオブジェクトを作成
+                // using (FileStream stream = new FileStream(string.Format(documentPath(), CB_FName.Text), FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+                // {
 
 
-                    xmlDoc.Load(stream);
+                //     xmlDoc.Load(stream);
 
-                    XmlElement xmlRoot = xmlDoc.DocumentElement;
-                    // <TEL></TEL>タグ作成用
-                    XmlElement xmlTel;
-                    // <TEL>タグの値作成用
-                    XmlText xmlValue;
+                //     XmlElement xmlRoot = xmlDoc.DocumentElement;
+                //     // <TEL></TEL>タグ作成用
+                //     XmlElement xmlTel;
+                //     // <TEL>タグの値作成用
+                //     XmlText xmlValue;
 
-                    // <TEL></TEL>タグを作成
-                    xmlTel = xmlDoc.CreateElement(ColName);
-                    // <TEL>タグの中身（値）を作成
-                    xmlValue = xmlDoc.CreateTextNode(Cvalues);
+                //     // <TEL></TEL>タグを作成
+                //     xmlTel = xmlDoc.CreateElement(ColName);
+                //     // <TEL>タグの中身（値）を作成
+                //     xmlValue = xmlDoc.CreateTextNode(Cvalues);
 
-                    // <TEL>タグの中身（値）を<TEL>タグに追加します
-                    xmlTel.AppendChild(xmlValue);
-                    // ルートタグに<TEL>タグを追加します
-                    xmlRoot.AppendChild(xmlTel);
+                //     // <TEL>タグの中身（値）を<TEL>タグに追加します
+                //     xmlTel.AppendChild(xmlValue);
+                //     // ルートタグに<TEL>タグを追加します
+                //     xmlRoot.AppendChild(xmlTel);
 
-                    stream.Close();
-                }
-                // ファイルに保存します
-                xmlDoc.Save(documentPath());
+                //     stream.Close();
+                // }
+                // // ファイルに保存します
+                // xmlDoc.Save(documentPath());
 
             }
             catch (System.Xml.XmlException Ex)
@@ -156,20 +162,25 @@ namespace EventViewerViewer
         {
 
             CreateXML();
-            XmlDocument xmlDoc = new XmlDocument();
-            using (FileStream stream = new FileStream(documentPath(), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            {
+            var xDoc = XDocument.Load(documentPath());
+            var element = xDoc.Elements();
+            element.Remove();
+            xDoc.Save(documentPath());
 
-                xmlDoc.Load(stream);
-                XmlElement rootelement = xmlDoc.DocumentElement;
-                rootelement.RemoveAll();
+            //XmlDocument xmlDoc = new XmlDocument();
+            //using (FileStream stream = new FileStream(documentPath(), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            //{
 
-                xmlDoc.Save(documentPath());
+            //    xmlDoc.Load(stream);
+            //    XmlElement rootelement = xmlDoc.DocumentElement;
+            //    rootelement.RemoveAll();
 
-                stream.Close();
-            }
+            //    xmlDoc.Save(documentPath());
+
+            //    stream.Close();
+            //}
             //リスト表示
-            EventlogAll();
+            //EventlogAll();
             System.Diagnostics.EventLog evLog = new System.Diagnostics.EventLog(comboBox1.Text);
 
         }
@@ -203,8 +214,7 @@ namespace EventViewerViewer
                 }
             }
         }
-
-        private void dgView_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
+        private void dgView_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             using (Form2 editForm = new Form2())
             {
@@ -227,15 +237,8 @@ namespace EventViewerViewer
             stopwatch.Start();
 
             System.Diagnostics.EventLog evLog = new System.Diagnostics.EventLog(comboBox1.Text);
-            //List<string> ALLName = new List<string>();
-            //List<string> CateName = new List<string>();
 
-            //DateRowに１つづセットしていく
-            //DatasetPatern(evLog);
-            //Listにセットしていく
-            //ListDatePatern(evLog);
             LinqPatern(evLog, BtnClick);
-            // ForeachPatern(evLog);
 
             stopwatch.Stop();
             MessageBox.Show(stopwatch.ElapsedMilliseconds + "ms");
@@ -322,7 +325,7 @@ namespace EventViewerViewer
         }
         private bool ALLEvent(string Level)
         {
-            if (this.CB_EventLevel.Text == "ALL")
+            if (this.CB_EventLevel.Text == Levellist[0])
             {
                 return true;
             }
@@ -565,14 +568,21 @@ namespace EventViewerViewer
             }
             if (File.Exists(documentPath()) == false)
             {
-                XmlDocument Xd = new XmlDocument();
-                XmlDeclaration XDc = Xd.CreateXmlDeclaration("1.0", "utf-8", null);
-                XmlElement root = Xd.CreateElement("Fillter");
-                Xd.AppendChild(XDc);
-                Xd.AppendChild(root);
+                var XDoc = new XDocument(new XDeclaration("1.0", "utf-8", "true"),
+                                         new XElement("Fillter")
+                                        );
 
-                // ファイルに保存する
-                Xd.Save(documentPath());
+                XDoc.Save(documentPath());
+
+                ////old code
+                //XmlDocument Xd = new XmlDocument();
+                //XmlDeclaration XDc = Xd.CreateXmlDeclaration("1.0", "utf-8", null);
+                //XmlElement root = Xd.CreateElement("Fillter");
+                //Xd.AppendChild(XDc);
+                //Xd.AppendChild(root);
+
+                //// ファイルに保存する
+                //Xd.Save(documentPath());
             }
 
         }
@@ -632,6 +642,8 @@ namespace EventViewerViewer
             {
                 Lbl_Rowcount.Text = "0";
             }
+            //初期選択をなくす
+            dgView.CurrentCell = null;
         }
         #endregion
 
@@ -640,7 +652,7 @@ namespace EventViewerViewer
             var ALLName = "";
             var CateName = "";
             List<ViewDate> dttest = new List<ViewDate>();
-            foreach (var objlog in sources)
+            foreach (ViewDate objlog in sources)
             {
                 if (ALLEvent(objlog.Level) == false) { continue; }
                 ViewDate tm = new ViewDate();
@@ -687,10 +699,10 @@ namespace EventViewerViewer
             List<ViewDate> dttest = new List<ViewDate>();
             var Levellist = new string[] { };
             //Linq逆順にする
-            var sources = (from System.Diagnostics.EventLogEntry es in evLog.Entries
+            IEnumerable<ViewDate> sources = (from System.Diagnostics.EventLogEntry es in evLog.Entries
                            where es.TimeWritten >= dt1.Date 
                            orderby es.TimeGenerated descending
-                           select  new{ Level = es.EntryType.ToString()
+                           select  new ViewDate{ Level = es.EntryType.ToString() 
                                        , TimeWritten = es.TimeWritten
                                        , Source = es.Source
                                        , EventID = es.EventID
@@ -698,31 +710,32 @@ namespace EventViewerViewer
                                        , Message = es.Message
                                        , MachineName = es.MachineName
                                        , UserName = es.UserName
-                                      }).ToList();
+                                      });
+
             if (BtnClick == "XMLBtn")
             {
-                XmlDocument xmlDoc = new XmlDocument();
-                using (FileStream stream = new FileStream(string.Format(documentPath(), CB_FName.Text), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                {
-                    XmlDocument doc = new XmlDocument();
-                    XmlValidatingReader reader = new XmlValidatingReader(new XmlTextReader(stream));
-                    reader.ValidationType = ValidationType.Schema;
-                    doc.Load(reader);
+                XDocument xDoc = XDocument.Load(documentPath());
+                //XmlDocument xmlDoc = new XmlDocument();
+                //using (FileStream stream = new FileStream(string.Format(documentPath(), CB_FName.Text), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                //{
+                //    XmlDocument doc = new XmlDocument();
+                //    XmlValidatingReader reader = new XmlValidatingReader(new XmlTextReader(stream));
+                //    reader.ValidationType = ValidationType.Schema;
+                //    doc.Load(reader);
 
-                    var DelXML = sources.Where(x => !checkcol(doc, "EventID").Contains(x.EventID.ToString()));
-                    DelXML = DelXML.Where(x => !checkcol(doc, "Level").Contains(x.Level));
-                    DelXML = DelXML.Where(x => !checkcol(doc, "Source").Contains(x.Source));
-                    DelXML = DelXML.Where(x => !checkcol(doc, "Category").Contains(x.Category));
-                    DelXML = DelXML.Where(x => !checkcol(doc, "TimeWritten").Contains(x.TimeWritten.ToString()));
+                //    var DelXML = sources.Where(x => !checkcol(doc, "EventID").Contains(x.EventID.ToString()))
+                //                        .Where(x => !checkcol(doc, "Level").Contains(x.Level))
+                //                        .Where(x => !checkcol(doc, "Source").Contains(x.Source))
+                //                        .Where(x => !checkcol(doc, "Category").Contains(x.Category))
+                //                        .Where(x => !checkcol(doc, "TimeWritten").Contains(x.TimeWritten.ToString()));
 
-                    dgView.DataSource = CreateData(DelXML);
-                }
+                //    dgView.DataSource = CreateData(DelXML);
+                //}
             }
             else
             {
                 dgView.DataSource = CreateData(sources);
             }
-
             Gridview();
         }
     }

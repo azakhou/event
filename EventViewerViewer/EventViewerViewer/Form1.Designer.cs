@@ -168,13 +168,14 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dgView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.dgView.Location = new System.Drawing.Point(12, 54);
+            this.dgView.MultiSelect = false;
             this.dgView.Name = "dgView";
             this.dgView.ReadOnly = true;
             this.dgView.RowTemplate.Height = 21;
             this.dgView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dgView.Size = new System.Drawing.Size(619, 409);
             this.dgView.TabIndex = 16;
-            this.dgView.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgView_CellContentDoubleClick);
+            this.dgView.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgView_CellDoubleClick);
             this.dgView.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgView_CellFormatting);
             // 
             // Form1
