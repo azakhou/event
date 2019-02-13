@@ -14,7 +14,6 @@ P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\bin\Debug\Even
 P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\obj\Debug\EventViewerViewer.Fillter.resources
 P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\obj\Debug\EventViewerViewer.Form1.resources
 P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\obj\Debug\EventViewerViewer.Form2.resources
-P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\obj\Debug\EventViewerViewer.Properties.Resources.resources
 P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\obj\Debug\EventViewerViewer.csproj.GenerateResource.Cache
 P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\obj\Debug\EventViewerViewer.exe.manifest
 P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\obj\Debug\EventViewerViewer.application
@@ -23,3 +22,4 @@ P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\obj\Debug\Even
 P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\obj\Debug\EventViewerViewer.FileAdd.resources
 P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\bin\Debug\EventViewerViewer.exe.config
 P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\obj\Debug\EventViewerViewer.csprojResolveAssemblyReference.cache
+P:\vss_khou\EventViewerViewer\EventViewerViewer\EventViewerViewer\obj\Debug\EventViewerViewer.DelXmlElement.resources

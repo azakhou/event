@@ -105,7 +105,6 @@ namespace EventViewerViewer
             if (dgView.RowCount == 0) return;
             try
             {
-                CreateXML();
                 string Cvalues = Convert.ToString(dgView.CurrentCell.Value); //セルの値
                 if (Cvalues == "Information")
                 {
@@ -154,35 +153,17 @@ namespace EventViewerViewer
             {
                 MessageBox.Show(Ex.Message);
             }
-
         }
 
 
         private void Removebtn_Click(object sender, EventArgs e)
         {
-
-            CreateXML();
-            var xDoc = XDocument.Load(documentPath());
-            var element = xDoc.Elements();
-            element.Remove();
-            xDoc.Save(documentPath());
-
-            //XmlDocument xmlDoc = new XmlDocument();
-            //using (FileStream stream = new FileStream(documentPath(), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            //{
-
-            //    xmlDoc.Load(stream);
-            //    XmlElement rootelement = xmlDoc.DocumentElement;
-            //    rootelement.RemoveAll();
-
-            //    xmlDoc.Save(documentPath());
-
-            //    stream.Close();
-            //}
-            //リスト表示
-            //EventlogAll();
-            System.Diagnostics.EventLog evLog = new System.Diagnostics.EventLog(comboBox1.Text);
-
+            DelXmlElement DelFill = new DelXmlElement();
+            DelFill.docName = documentPath();
+            if (DelFill.ShowDialog(this) == DialogResult.OK)
+            {
+                EventlogAll(((Button)sender).Name);
+            }
         }
 
         private void btn_add_Click(object sender, EventArgs e)
@@ -242,6 +223,7 @@ namespace EventViewerViewer
 
             stopwatch.Stop();
             MessageBox.Show(stopwatch.ElapsedMilliseconds + "ms");
+            ReadFList();
         }
         private void ReloadF(Fillter Fil)
         {
@@ -535,31 +517,31 @@ namespace EventViewerViewer
 
         }
 
-        private string checkcol(XmlDocument doc, string colName)
-        {
-            string strobj = "";
-            var Del_info = doc.GetElementsByTagName(colName);
-            if (Del_info.Count == 1)
-            {
-                strobj = Del_info[Level_Col].InnerText;
-            }
-            else if (Del_info.Count > 1)
-            {
-                for (int i = 0; i <= Del_info.Count - 1; i++)
-                {
+        //private string checkcol(XmlDocument doc, string colName)
+        //{
+        //    string strobj = "";
+        //    var Del_info = doc.GetElementsByTagName(colName);
+        //    if (Del_info.Count == 1)
+        //    {
+        //        strobj = Del_info[Level_Col].InnerText;
+        //    }
+        //    else if (Del_info.Count > 1)
+        //    {
+        //        for (int i = 0; i <= Del_info.Count - 1; i++)
+        //        {
 
-                    if (i == Del_info.Count - 1)
-                    {
-                        strobj += Del_info[i].InnerText;
-                    }
-                    else
-                    {
-                        strobj += Del_info[i].InnerText + ",";
-                    }
-                }
-            }
-            return strobj;
-        }
+        //            if (i == Del_info.Count - 1)
+        //            {
+        //                strobj += Del_info[i].InnerText;
+        //            }
+        //            else
+        //            {
+        //                strobj += Del_info[i].InnerText + ",";
+        //            }
+        //        }
+        //    }
+        //    return strobj;
+        //}
         private void CreateXML()
         {
             if (File.Exists(FolderPath) == false)
@@ -591,14 +573,20 @@ namespace EventViewerViewer
             try
             {
                 CB_FName.Items.Clear();
+                var files = Directory.GetFiles(FolderPath).OrderByDescending(f => File.GetLastWriteTime(f)).ToArray();
                 //ファイルをすべて取得する
                 //ワイルドカード"*"は、すべてのファイルを意味する
-                string[] files = System.IO.Directory.GetFiles(
-                   FolderPath, "*", System.IO.SearchOption.AllDirectories);
-                for (int i = 0; i < files.Length; i++)
+                //string[] files = System.IO.Directory.GetFiles(
+                //   FolderPath, "*", System.IO.SearchOption.AllDirectories);
+                //for (int i = 0; i < files.Length; i++)
+                //{
+                //    CB_FName.Items.Add(System.IO.Path.GetFileNameWithoutExtension(files[i]));
+                //}
+                foreach (var fileName in files)
                 {
-                    CB_FName.Items.Add(System.IO.Path.GetFileNameWithoutExtension(files[i]));
+                    CB_FName.Items.Add(System.IO.Path.GetFileNameWithoutExtension(fileName));
                 }
+                CB_FName.SelectedIndex = 0;
             }
             catch
             {
@@ -712,9 +700,10 @@ namespace EventViewerViewer
                                        , UserName = es.UserName
                                       });
 
-            if (BtnClick == "XMLBtn")
+            if (BtnClick == "XMLBtn" || BtnClick ==" Removebtn")
             {
                 XDocument xDoc = XDocument.Load(documentPath());
+
                 //XmlDocument xmlDoc = new XmlDocument();
                 //using (FileStream stream = new FileStream(string.Format(documentPath(), CB_FName.Text), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 //{
@@ -723,13 +712,13 @@ namespace EventViewerViewer
                 //    reader.ValidationType = ValidationType.Schema;
                 //    doc.Load(reader);
 
-                //    var DelXML = sources.Where(x => !checkcol(doc, "EventID").Contains(x.EventID.ToString()))
-                //                        .Where(x => !checkcol(doc, "Level").Contains(x.Level))
-                //                        .Where(x => !checkcol(doc, "Source").Contains(x.Source))
-                //                        .Where(x => !checkcol(doc, "Category").Contains(x.Category))
-                //                        .Where(x => !checkcol(doc, "TimeWritten").Contains(x.TimeWritten.ToString()));
+                    var DelXML = sources.Where(x => !Checkcol(xDoc, "EventID").Contains(x.EventID.ToString()))
+                                        .Where(x => !Checkcol(xDoc, "Level").Contains(x.Level))
+                                        .Where(x => !Checkcol(xDoc, "Source").Contains(x.Source))
+                                        .Where(x => !Checkcol(xDoc, "Category").Contains(x.Category))
+                                        .Where(x => !Checkcol(xDoc, "TimeWritten").Contains(x.TimeWritten.ToString()));
 
-                //    dgView.DataSource = CreateData(DelXML);
+                    dgView.DataSource = CreateData(DelXML);
                 //}
             }
             else
@@ -737,6 +726,16 @@ namespace EventViewerViewer
                 dgView.DataSource = CreateData(sources);
             }
             Gridview();
+        }
+        private string Checkcol(XDocument xDoc ,string ColName)
+        {
+            var objreturn = "";
+            var element = (from o in xDoc.Element("Fillter").Elements(ColName) select o); 
+            foreach (var objex in element)
+            {
+                objreturn += objex.Value;
+            }
+            return objreturn;
         }
     }
     #region old

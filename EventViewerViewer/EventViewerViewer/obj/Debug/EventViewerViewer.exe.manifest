@@ -42,14 +42,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="EventViewerViewer.exe" size="43432">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="EventViewerViewer.exe" size="45480">
       <assemblyIdentity name="EventViewerViewer" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>aWKEusPGjMk9yom3RJnntw55C35E0rIEPtn3IcxwivU=</dsig:DigestValue>
+        <dsig:DigestValue>9XWo0skJq66vO5y9LoxYl9ndRl5b8mBt7YUon7jYFnM=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
