@@ -29,30 +29,20 @@
         private void InitializeComponent()
         {
             this.btn_Delele = new System.Windows.Forms.Button();
-            this.dgv_xml = new DataGridViewEx();
             this.btn_clear = new System.Windows.Forms.Button();
+            this.dgv_xml = new DataGridViewEx();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_xml)).BeginInit();
             this.SuspendLayout();
             // 
             // btn_Delele
             // 
-            this.btn_Delele.Location = new System.Drawing.Point(172, 284);
+            this.btn_Delele.Location = new System.Drawing.Point(187, 285);
             this.btn_Delele.Name = "btn_Delele";
             this.btn_Delele.Size = new System.Drawing.Size(75, 23);
             this.btn_Delele.TabIndex = 1;
             this.btn_Delele.Text = "削除";
             this.btn_Delele.UseVisualStyleBackColor = true;
             this.btn_Delele.Click += new System.EventHandler(this.btn_Delele_Click);
-            // 
-            // dgv_xml
-            // 
-            this.dgv_xml.Location = new System.Drawing.Point(12, 12);
-            this.dgv_xml.Name = "dgv_xml";
-            this.dgv_xml.RowTemplate.Height = 21;
-            this.dgv_xml.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgv_xml.Size = new System.Drawing.Size(235, 266);
-            this.dgv_xml.TabIndex = 0;
-            this.dgv_xml.DataSourceChanged += new System.EventHandler(this.dgv_xml_DataSourceChanged);
             // 
             // btn_clear
             // 
@@ -64,16 +54,33 @@
             this.btn_clear.UseVisualStyleBackColor = true;
             this.btn_clear.Click += new System.EventHandler(this.btn_clear_Click);
             // 
+            // dgv_xml
+            // 
+            this.dgv_xml.AllowUserToResizeColumns = false;
+            this.dgv_xml.AllowUserToResizeRows = false;
+            this.dgv_xml.Location = new System.Drawing.Point(12, 12);
+            this.dgv_xml.Name = "dgv_xml";
+            this.dgv_xml.ReadOnly = true;
+            this.dgv_xml.RowHeadersVisible = false;
+            this.dgv_xml.RowTemplate.Height = 21;
+            this.dgv_xml.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgv_xml.Size = new System.Drawing.Size(250, 266);
+            this.dgv_xml.TabIndex = 0;
+            this.dgv_xml.DataSourceChanged += new System.EventHandler(this.dgv_xml_DataSourceChanged);
+            // 
             // DelXmlElement
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(264, 316);
+            this.ClientSize = new System.Drawing.Size(275, 316);
             this.Controls.Add(this.btn_clear);
             this.Controls.Add(this.btn_Delele);
             this.Controls.Add(this.dgv_xml);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
             this.Name = "DelXmlElement";
-            this.Text = "DelXmlElement";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
+            this.Text = "除外対象";
             this.Load += new System.EventHandler(this.DelXmlElement_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgv_xml)).EndInit();
             this.ResumeLayout(false);

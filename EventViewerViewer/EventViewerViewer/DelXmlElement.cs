@@ -23,10 +23,16 @@ namespace EventViewerViewer
         private void DelXmlElement_Load(object sender, EventArgs e)
         {
             dgv_xml.DataSource = XmlDataList();
+            Gridview();
         }
-
+        public  void Display()
+        {
+            dgv_xml.DataSource = XmlDataList();
+            Gridview();
+        }
         private void btn_Delele_Click(object sender, EventArgs e)
         {
+            if (dgv_xml.RowCount < 1) return;
             int Cvalindex = dgv_xml.CurrentCell.RowIndex;
             XDocument xDoc = XDocument.Load(docName);
             XDocument strXML = XDocument.Parse(xDoc.Document.ToString());
@@ -53,15 +59,29 @@ namespace EventViewerViewer
         private void dgv_xml_DataSourceChanged(object sender, EventArgs e)
         {
             dgv_xml.CausesValidation = false;
-        }
+            //初期選択をなくす
+            dgv_xml.CurrentCell = null;
 
+        }
+        public void Gridview()
+        {
+
+            //幅
+            dgv_xml.Columns[0].Width = 70;
+            dgv_xml.Columns[1].Width = 120;
+            //初期選択をなくす
+            dgv_xml.CurrentCell = null;
+        }
         private void btn_clear_Click(object sender, EventArgs e)
         {
+            if (MessageBox.Show("除外内容をすべて削除します、よろしいですか？", "注意", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) == DialogResult.Cancel) return;
+
+
             var xDoc = XDocument.Load(docName);
             XElement element = xDoc.Element("Fillter");
             element.RemoveAll();
             xDoc.Save(docName);
-
+            dgv_xml.DataSource = XmlDataList();
             //XmlDocument xmlDoc = new XmlDocument();
             //using (FileStream stream = new FileStream(documentPath(), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             //{

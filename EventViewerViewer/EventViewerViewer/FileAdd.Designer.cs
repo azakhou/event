@@ -56,9 +56,12 @@
             this.ClientSize = new System.Drawing.Size(466, 40);
             this.Controls.Add(this.btn_Fadd);
             this.Controls.Add(this.txt_FName);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
             this.MaximumSize = new System.Drawing.Size(482, 79);
             this.MinimumSize = new System.Drawing.Size(482, 79);
             this.Name = "FileAdd";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "FileAdd";
             this.ResumeLayout(false);
             this.PerformLayout();

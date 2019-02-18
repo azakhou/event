@@ -137,7 +137,7 @@
             this.Removebtn.Name = "Removebtn";
             this.Removebtn.Size = new System.Drawing.Size(75, 23);
             this.Removebtn.TabIndex = 13;
-            this.Removebtn.Text = "除外削除";
+            this.Removebtn.Text = "除外編集";
             this.Removebtn.UseVisualStyleBackColor = true;
             this.Removebtn.Click += new System.EventHandler(this.Removebtn_Click);
             // 
@@ -152,7 +152,7 @@
             // 
             // btn_add
             // 
-            this.btn_add.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_add.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btn_add.Location = new System.Drawing.Point(114, 469);
             this.btn_add.Name = "btn_add";
             this.btn_add.Size = new System.Drawing.Size(52, 23);
@@ -163,6 +163,8 @@
             // 
             // dgView
             // 
+            this.dgView.AllowUserToResizeColumns = false;
+            this.dgView.AllowUserToResizeRows = false;
             this.dgView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -196,6 +198,8 @@
             this.Controls.Add(this.dateTimePicker1);
             this.Controls.Add(this.CB_EventLevel);
             this.Controls.Add(this.btn_play);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "イベントビューア";
             this.Load += new System.EventHandler(this.Form1_Load);

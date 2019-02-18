@@ -324,7 +324,9 @@
             this.Controls.Add(this.SourceCB);
             this.Controls.Add(this.label1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
             this.Name = "Fillter";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "フィルター";
             this.Load += new System.EventHandler(this.Fillter_Load);
             this.groupBox1.ResumeLayout(false);

@@ -295,6 +295,7 @@
             this.Controls.Add(this.SousL);
             this.Controls.Add(this.LogL);
             this.Controls.Add(this.LevelL);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "Form2";
             this.Text = "詳細";
             this.Load += new System.EventHandler(this.Form2_Load);

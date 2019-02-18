@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Level>
+  <List>ALL</List>
+  <List>Information</List>
+  <List>Error</List>
+  <List>Warning</List>
+</Level>

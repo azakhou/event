@@ -33,11 +33,12 @@ namespace EventViewerViewer
         public string FPCEX { get; set; }
         public string Eventtext { get; set; }
         public Fillter Fil = null;
+        public DelXmlElement DelFill = null;
         public DataGridView GridIn { get; set; }
         public int Level_Col = 0;
         public string[] Levellist = new string[] { "ALL", "Information", "Error", "Warning", "FailureAudit", "SuccessAudit" };
-
-        public static readonly string FolderPath = "./Fillter";
+        public static readonly string CarentPath = "./";
+        public static readonly string FolderPath = CarentPath +"Fillter/";
         private string documentPath()
         {
             var strobj = CB_FName.Text;
@@ -45,7 +46,7 @@ namespace EventViewerViewer
             {
                 strobj = "XMLFile";
             }
-            return string.Format("./Fillter/{0}.xml", strobj);
+            return string.Format(FolderPath+"{0}.xml", strobj);
         }
         public void ComboItems()
         {
@@ -60,8 +61,11 @@ namespace EventViewerViewer
             }
             this.comboBox1.SelectedIndex = 0;
             //コンボボックス2のリストと初期値
-
-            this.CB_EventLevel.Items.AddRange(Levellist);
+            XDocument XDoc = XDocument.Load(CarentPath + "/Level.xml");
+            var list = from XElement es in XDoc.Element("Level").Elements("List")
+                       select es.Value;
+            CB_EventLevel.DataSource = list.ToArray();
+           // this.CB_EventLevel.Items.AddRange(Checkcol(XDoc, "Level", "List").ToArray[]);
             this.CB_EventLevel.SelectedIndex = 0;
             ReadFList();
         }
@@ -74,6 +78,7 @@ namespace EventViewerViewer
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            CreateLevelXML();
             ComboItems();
         }
 
@@ -147,6 +152,10 @@ namespace EventViewerViewer
                 // }
                 // // ファイルに保存します
                 // xmlDoc.Save(documentPath());
+                if (DelFill != null && DelFill.IsDisposed == false)
+                {
+                    DelFill.Display();
+                }
 
             }
             catch (System.Xml.XmlException Ex)
@@ -158,11 +167,12 @@ namespace EventViewerViewer
 
         private void Removebtn_Click(object sender, EventArgs e)
         {
-            DelXmlElement DelFill = new DelXmlElement();
-            DelFill.docName = documentPath();
-            if (DelFill.ShowDialog(this) == DialogResult.OK)
+            if (DelFill == null || DelFill.Visible == false)
             {
-                EventlogAll(((Button)sender).Name);
+                DelFill = new DelXmlElement();
+                DelFill.docName = documentPath();
+                DelFill.SetDesktopLocation(this.Location.X- DelFill.Width+13, this.Location.Y);//微調整のため13PXオンコード
+                DelFill.Show(this);
             }
         }
 
@@ -170,6 +180,7 @@ namespace EventViewerViewer
         {
             using (FileAdd editForm = new FileAdd())
             {
+                editForm.StartPosition = FormStartPosition.CenterParent;
                 editForm.ShowDialog(this);
             }
             ReadFList();
@@ -712,11 +723,11 @@ namespace EventViewerViewer
                 //    reader.ValidationType = ValidationType.Schema;
                 //    doc.Load(reader);
 
-                    var DelXML = sources.Where(x => !Checkcol(xDoc, "EventID").Contains(x.EventID.ToString()))
-                                        .Where(x => !Checkcol(xDoc, "Level").Contains(x.Level))
-                                        .Where(x => !Checkcol(xDoc, "Source").Contains(x.Source))
-                                        .Where(x => !Checkcol(xDoc, "Category").Contains(x.Category))
-                                        .Where(x => !Checkcol(xDoc, "TimeWritten").Contains(x.TimeWritten.ToString()));
+                    var DelXML = sources.Where(x => !Checkcol(xDoc,"Fillter", "EventID").Contains(x.EventID.ToString()))
+                                        .Where(x => !Checkcol(xDoc,"Fillter", "Level").Contains(x.Level))
+                                        .Where(x => !Checkcol(xDoc,"Fillter", "Source").Contains(x.Source))
+                                        .Where(x => !Checkcol(xDoc,"Fillter", "Category").Contains(x.Category))
+                                        .Where(x => !Checkcol(xDoc, "Fillter", "TimeWritten").Contains(x.TimeWritten.ToString()));
 
                     dgView.DataSource = CreateData(DelXML);
                 //}
@@ -727,15 +738,40 @@ namespace EventViewerViewer
             }
             Gridview();
         }
-        private string Checkcol(XDocument xDoc ,string ColName)
+        private string Checkcol(XDocument xDoc, string Rootele, string ColName)
         {
             var objreturn = "";
-            var element = (from o in xDoc.Element("Fillter").Elements(ColName) select o); 
+            var element = (from o in xDoc.Element(Rootele).Elements(ColName) select o); 
             foreach (var objex in element)
             {
                 objreturn += objex.Value;
             }
             return objreturn;
+        }
+        private void CreateLevelXML()
+        {
+            var targetpath = CarentPath + "/Level.xml";
+            if (File.Exists(targetpath) == false)
+            {
+                //XMLファイル作成
+                XmlDocument Xd = new XmlDocument();
+                XmlDeclaration XDc = Xd.CreateXmlDeclaration("1.0", "utf-8", null);
+                XmlElement root = Xd.CreateElement("Level");
+                Xd.AppendChild(XDc);
+                Xd.AppendChild(root);
+                // ファイルに保存する
+                Xd.Save(targetpath);
+
+                var xDoc = XDocument.Load(targetpath);
+                foreach (var i in Levellist)
+                {
+
+                    var elem = new XElement("List", i);
+                    xDoc.Elements().First().Add(elem);
+                   
+                }
+                xDoc.Save(targetpath);
+            }
         }
     }
     #region old

@@ -20,7 +20,12 @@ namespace EventViewerViewer
 
         private void btn_Fadd_Click(object sender, EventArgs e)
         {
-            if (txt_FName.Text == "") this.Close();
+            if (txt_FName.Text == "")
+            {
+                this.Close();
+                return;
+            }
+
             if (File.Exists(FolderPath) == false)
             {
                 System.IO.Directory.CreateDirectory(FolderPath);
